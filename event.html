@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>פרטי אירוע</title><link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="app-header"><a href="index.html" class="back">← ללוח</a><h1 id="page-title">פרטי אירוע</h1></header>
+  <div id="demo-banner" class="demo-banner" hidden>מצב דמו - הנתונים נשמרים רק אצלך</div>
+  <main class="container event-page"><div id="event-content" class="loading">טוען…</div></main>
+  <dialog id="event-edit-dialog"><form id="event-edit-form" method="dialog">
+    <div class="dialog-head"><h2>עריכת אירוע</h2><button type="button" class="icon-btn" id="close-edit" aria-label="סגירה">×</button></div>
+    <label>כותרת<input name="title" maxlength="80" required></label>
+    <div class="form-grid"><label>תאריך<input name="date" type="date" required></label><label>שעה<input name="time" type="time"></label></div>
+    <label>מיקום<input name="location" maxlength="120"></label><label>שם המארחת<input name="hostName" maxlength="60" required></label>
+    <label>תיאור<textarea name="description" maxlength="1000"></textarea></label>
+    <label>החלפת תמונה<input name="image" type="file" accept="image/jpeg,image/png,image/webp"></label>
+    <fieldset><legend>שורות אישיות (עד 5)</legend><div id="edit-personal-lines"></div><button type="button" id="edit-add-line" class="secondary">＋ שורה נוספת</button></fieldset>
+    <label class="check"><input id="edit-tasks-enabled" name="tasksEnabled" type="checkbox"> אני רוצה שבנות יעזרו בארגון דברים</label>
+    <fieldset id="edit-task-editor" class="task-editor" hidden><legend>דברים לארגון</legend><div id="edit-task-rows" class="task-table"></div><button type="button" id="edit-add-task" class="secondary">＋ הוספת שורה</button></fieldset>
+    <p id="edit-error" class="error"></p><button class="primary wide" type="submit">שמירה</button>
+  </form></dialog>
+  <script type="module" src="js/event.js"></script>
+</body></html>

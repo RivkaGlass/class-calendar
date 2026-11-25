@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>לוח אירועים משותף לכיתה</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="app-header">
+    <h1>לוח האירועים שלנו</h1>
+  </header>
+  <div id="demo-banner" class="demo-banner" hidden>מצב דמו - הנתונים נשמרים רק אצלך</div>
+  <main class="container">
+    <section class="toolbar">
+      <div class="view-buttons" aria-label="מצבי תצוגה">
+        <button data-view="month" class="active">חודשי</button>
+        <button data-view="day">יומי</button>
+        <button data-view="week">שבועי</button>
+        <button data-view="list">אירועים בלבד</button>
+      </div>
+      <button id="add-event-btn" class="primary">＋ הוספת אירוע</button>
+    </section>
+    <section id="calendar"></section>
+  </main>
+
+  <dialog id="event-dialog">
+    <form id="event-form" method="dialog">
+      <div class="dialog-head"><h2 id="event-form-title">אירוע חדש</h2><button type="button" class="icon-btn" id="close-dialog" aria-label="סגירה">×</button></div>
+      <label>כותרת <span class="required">*</span><input name="title" maxlength="80" required></label>
+      <div class="form-grid">
+        <label>תאריך <span class="required">*</span><input name="date" type="date" required></label>
+        <label>שעה <input name="time" type="time"></label>
+      </div>
+      <label>מיקום <input name="location" maxlength="120"></label>
+      <label>שם המארחת <input name="hostName" maxlength="60" required></label>
+      <label>תיאור <textarea name="description" maxlength="1000"></textarea></label>
+      <label>תמונת הזמנה (jpg, png או webp)<input name="image" type="file" accept="image/jpeg,image/png,image/webp"></label>
+      <p id="image-status" class="hint"></p>
+      <fieldset>
+        <legend>שורות אישיות (עד 5)</legend>
+        <div id="personal-lines"></div>
+        <button type="button" id="add-line" class="secondary">＋ שורה נוספת</button>
+      </fieldset>
+      <label class="check"><input id="create-tasks-enabled" name="tasksEnabled" type="checkbox"> אני רוצה שבנות יעזרו בארגון דברים</label>
+      <fieldset id="create-task-editor" class="task-editor" hidden>
+        <legend>דברים לארגון</legend>
+        <div id="create-task-rows" class="task-table"></div>
+        <button type="button" id="add-create-task" class="secondary">＋ הוספת שורה</button>
+      </fieldset>
+      <div class="edit-warning"><strong>חשוב:</strong> העריכה אפשרית רק מהדפדפן והמכשיר שיצרו את האירוע. אין קוד שחזור או מעבר למכשיר אחר.</div>
+      <p id="event-error" class="error" role="alert"></p>
+      <button class="primary wide" type="submit">שמירה</button>
+    </form>
+  </dialog>
+
+  <script type="module" src="js/calendar.js"></script>
+</body></html>

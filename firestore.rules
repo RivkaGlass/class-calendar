@@ -1,0 +1,92 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isOwner(eventId) {
+      return signedIn() && request.auth.uid == get(/databases/$(database)/documents/events/$(eventId)).data.ownerUid;
+    }
+    function validPersonalLines() {
+      return request.resource.data.personalLines is list
+        && request.resource.data.personalLines.size() <= 5
+        && (request.resource.data.personalLines.size() < 1 || (request.resource.data.personalLines[0] is string && request.resource.data.personalLines[0].size() <= 120))
+        && (request.resource.data.personalLines.size() < 2 || (request.resource.data.personalLines[1] is string && request.resource.data.personalLines[1].size() <= 120))
+        && (request.resource.data.personalLines.size() < 3 || (request.resource.data.personalLines[2] is string && request.resource.data.personalLines[2].size() <= 120))
+        && (request.resource.data.personalLines.size() < 4 || (request.resource.data.personalLines[3] is string && request.resource.data.personalLines[3].size() <= 120))
+        && (request.resource.data.personalLines.size() < 5 || (request.resource.data.personalLines[4] is string && request.resource.data.personalLines[4].size() <= 120));
+    }
+    function validEvent() {
+      return request.resource.data.title is string && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 80
+        && request.resource.data.date is string && request.resource.data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.time is string && request.resource.data.time.size() <= 10
+        && request.resource.data.location is string && request.resource.data.location.size() <= 120
+        && request.resource.data.hostName is string && request.resource.data.hostName.size() <= 60
+        && request.resource.data.description is string && request.resource.data.description.size() <= 1000
+        && request.resource.data.imageDataUrl is string && request.resource.data.imageDataUrl.size() <= 700 * 1024
+        && request.resource.data.personalLines is list && request.resource.data.personalLines.size() <= 5
+        && request.resource.data.tasksEnabled is bool
+        && request.resource.data.ownerUid is string
+        && request.resource.data.createdAt is string;
+    }
+
+    match /events/{eventId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.ownerUid == request.auth.uid
+        && validEvent()
+        && validPersonalLines()
+        && !('attendeeCount' in request.resource.data);
+
+      allow update: if signedIn() && (
+        (isOwner(eventId)
+          && request.resource.data.ownerUid == resource.data.ownerUid
+          && validEvent()
+          && validPersonalLines()
+          && !('attendeeCount' in request.resource.data))
+      );
+      allow delete: if isOwner(eventId);
+
+      match /attendees/{uid} {
+        allow read: if signedIn();
+        allow create, delete: if signedIn() && uid == request.auth.uid;
+        allow update: if false;
+      }
+
+      match /tasks/{taskId} {
+        allow read: if signedIn();
+        allow create: if isOwner(eventId)
+          && request.resource.data.label is string
+          && request.resource.data.label.size() > 0
+          && request.resource.data.label.size() <= 80
+          && request.resource.data.quantity is int
+          && request.resource.data.quantity >= 1
+          && request.resource.data.quantity <= 99
+          && request.resource.data.allowMultiple is bool;
+        allow update: if isOwner(eventId)
+          && request.resource.data.label is string
+          && request.resource.data.label.size() > 0
+          && request.resource.data.label.size() <= 80
+          && request.resource.data.quantity is int
+          && request.resource.data.quantity >= 1
+          && request.resource.data.quantity <= 99
+          && request.resource.data.allowMultiple is bool;
+        allow delete: if isOwner(eventId);
+
+        match /claims/{uid} {
+          allow read: if signedIn();
+          allow create: if signedIn() && uid == request.auth.uid
+            && request.resource.data.firstName is string
+            && request.resource.data.firstName.size() > 0
+            && request.resource.data.firstName.size() <= 30
+            && request.resource.data.createdAt is string;
+          allow delete: if signedIn() && uid == request.auth.uid;
+          allow update: if false;
+        }
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
