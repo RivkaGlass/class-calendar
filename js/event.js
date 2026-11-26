@@ -1,4 +1,6 @@
 import * as db from './db.js';
+import { compressImage } from './image-utils.js';
+
 const banner=document.querySelector('#demo-banner');banner.hidden=!db.demoMode;
 const id=new URL(location.href).searchParams.get('id');
 const box=document.querySelector('#event-content');
@@ -45,8 +47,6 @@ async function shareLink(){const url=location.href;try{await navigator.clipboard
 function shareWhatsApp(){const text=`${event.title} — ${event.date}${event.time?' • '+event.time:''}\n${location.href}`;location.href=`https://wa.me/?text=${encodeURIComponent(text)}`}
 function downloadICS(){const dt=event.date.replace(/-/g,'');const time=(event.time||'').replace(':','');const start=time?`${dt}T${time}00`:dt;const end=start.includes('T')?start:dt;const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Class Calendar//HE','BEGIN:VEVENT',`UID:${id}@class-calendar`,`DTSTART:${start}`,`DTEND:${end}`,`SUMMARY:${escapeICS(event.title)}`,`LOCATION:${escapeICS(event.location||'')}`,`DESCRIPTION:${escapeICS(event.description||'')}`,'END:VEVENT','END:VCALENDAR'].join('\r\n');const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`event-${dt}.ics`;a.hidden=true;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function escapeICS(s){return String(s).replace(/\\/g,'\\\\').replace(/,/g,'\\,').replace(/;/g,'\\;').replace(/\n/g,'\\n')}
-
-async function compressImage(file){if(!['image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('אפשר להעלות רק jpg, png או webp');if(file.size>12*1024*1024)throw new Error('קובץ התמונה גדול מדי');const bmp=await createImageBitmap(file);const scale=Math.min(1,1000/bmp.width);const canvas=document.createElement('canvas');canvas.width=Math.round(bmp.width*scale);canvas.height=Math.round(bmp.height*scale);canvas.getContext('2d').drawImage(bmp,0,0,canvas.width,canvas.height);const data=canvas.toDataURL('image/jpeg',.7);bmp.close?.();if(data.length>700*1024)throw new Error('התמונה הדחוסה גדולה מדי');return data}
 
 const editDialog=document.querySelector('#event-edit-dialog'),editForm=document.querySelector('#event-edit-form');
 const editLines=document.querySelector('#edit-personal-lines'),editAddLine=document.querySelector('#edit-add-line');

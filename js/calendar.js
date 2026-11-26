@@ -1,4 +1,5 @@
 import * as db from './db.js';
+import { compressImage } from './image-utils.js';
 
 const banner = document.querySelector('#demo-banner'); banner.hidden = !db.demoMode;
 const calendar = document.querySelector('#calendar');

@@ -43,7 +43,10 @@ if (!demoMode) {
   ]);
   const app = initializeApp(firebaseConfig);
   const auth = authMod.getAuth(app);
-  const db = fs.getFirestore(app);
+  const db = fs.initializeFirestore(app, {
+    experimentalForceLongPolling: true,
+    useFetchStreams: false
+  });
   firebase = { ...fs, app, db, auth };
   authReady = (async () => {
     await authMod.setPersistence(auth, authMod.browserLocalPersistence);
